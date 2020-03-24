@@ -1,0 +1,55 @@
+---
+title: "HW8"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## QIAN,Chapter 6,#4
+
+```{r}
+
+bod <- data.frame(Y = c(3.93, 6.8, 9.13, 10.86, 11.72, 12.58, 13.27, 14.23, 
+	15.83, 16.81, 17.96, 18.45, 19.01, 19.58, 20.08, 20.49, 21, 
+	22.46), Time = c(5, 10, 15, 20, 25, 30, 35, 40, 50, 60, 70, 80, 
+	90, 100, 110, 120, 140, 180))
+```
+
+
+```{r}
+# making the non linear model
+library(ggplot2)
+nls.model <- nls(Y~a*Time^(-b), data = bod, 
+              start = list(a = 100, b = 0.5))
+
+#make linear model 
+lm.model <- lm(Time~Y,data=bod)
+
+# for comparison ploting both (nls & lm) in same diagram
+
+ggplot(bod , aes(x = Time, y = Y))+ 
+  geom_point(na.rm = T)+
+  geom_smooth(method = "loess", span = 0.25,method.args = list(degree=2), se = FALSE,color = "blue", na.rm = T)+
+  geom_smooth(method = "lm", se = FALSE,color = "red")
+  
+
+  
+
+```
+```{r}
+# Compare them base on residual
+bod$predicted <- predict(lm.model)
+bod$residuals <- residuals(lm.model)
+ ggplot(bod, aes(x = Time, y = Y))+ 
+theme_bw()+
+  geom_segment(aes(xend = Time, yend =predicted), alpha = .75) +
+  geom_point(aes(color = residuals)) +
+  scale_color_gradient2(low = "blue", mid = "white", high = "red") +
+  guides(color = FALSE) +
+  geom_point(aes(y = predicted), shape = 1)+
+  geom_smooth(method = "lm") 
+
+```
+The nonlinear model is a better fit for modeling than the linear model
